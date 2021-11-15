@@ -3,6 +3,7 @@ package ProductRepository
 import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	config "kanberskyecho/configs/product"
 	"kanberskyecho/pkg/infrastructure/product/entities"
 )
 
@@ -55,7 +56,7 @@ func NewProductRepository(db *gorm.DB) ProductRepository{
 }
 
 func Connect() *gorm.DB{
-	db, err := gorm.Open(mysql.Open("admin:password@tcp(127.0.0.1:3306)/db?parseTime=true"))
+	db, err := gorm.Open(mysql.Open(config.PRODUCTCONNSTRING))
 	if err != nil {
 		panic("Could not connect to the database")
 	}

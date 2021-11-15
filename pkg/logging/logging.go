@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/olivere/elastic/v7"
 	"github.com/sirupsen/logrus"
+	config "kanberskyecho/configs/product"
 	"strings"
 	"time"
 )
@@ -22,13 +23,13 @@ type loggerService struct {
 func (l loggerService) CreateLog() *logrus.Logger{
 	log := logrus.New()
 	client, err := elastic.NewClient(
-		elastic.SetURL("http://localhost:9200/"),
+		elastic.SetURL(config.LOGGINGURL),
 		elastic.SetSniff(false))
 	if err != nil {
 		log.Panic(err)
 	}
 
-	createLogOperation, err := PrepareLogging(client, "localhost", logrus.DebugLevel, "product_api_log", CreateIndexAsync)
+	createLogOperation, err := PrepareLogging(client, config.LOGGINGHOST, logrus.DebugLevel, config.LOGGERINDEX, CreateIndexAsync)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -101,7 +102,7 @@ func (l *LoggerModel) Fire(entry *logrus.Entry) error {
 }
 
 func CreateIndex(entry *logrus.Entry, l *LoggerModel) error{
-	_, err := l.client.Index().Index("product_api_log").BodyJson(*PrepareMessage(entry, l)).Do(l.ctx)
+	_, err := l.client.Index().Index(config.LOGGERINDEX).BodyJson(*PrepareMessage(entry, l)).Do(l.ctx)
 	return err
 }
 
