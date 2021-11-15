@@ -1,6 +1,6 @@
-# Proje Katmanları
+# Project Layers
 
-###Api
+### Api
 - OpenAPI/Swagger specs, JSON schema files, protocol definition files.
 
 ### Build
