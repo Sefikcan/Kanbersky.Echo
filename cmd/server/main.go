@@ -17,4 +17,6 @@ func main() {
 	// TODO: Register Jaeger
 	// TODO: Register Prometheous
 	// TODO: Register Casbin
+
+	//TODO: DTO modelleri oluşturulacak
 }
