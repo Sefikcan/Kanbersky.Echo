@@ -14,7 +14,6 @@ func main() {
 	productService := NewProductService(productRepository, logger)
 	product.NewProductHandler(productService, logger)
 
-	// TODO: Register Jaeger
 	// TODO: Register Prometheous
 	// TODO: Register Casbin
 

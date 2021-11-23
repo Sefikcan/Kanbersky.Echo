@@ -1,8 +1,10 @@
 package product
 
 import (
+	"github.com/labstack/echo-contrib/jaegertracing"
 	"github.com/labstack/echo/v4"
-	echoswagger "github.com/pangpanglabs/echoswagger/v2"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/pangpanglabs/echoswagger/v2"
 	"github.com/sirupsen/logrus"
 	"kanberskyecho/pkg/infrastructure/product/entities"
 	"kanberskyecho/pkg/logging"
@@ -13,6 +15,13 @@ import (
 
 func NewProductHandler(productService ProductService, logger logging.LoggerService){
 	e := echo.New()
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowHeaders:[]string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
+
+	// Enable tracing middleware
+	c := jaegertracing.New(e, nil)
+	defer c.Close()
 
 	se := echoswagger.New(e, "doc/", &echoswagger.Info{
 		Title:          "Product Api",
@@ -30,8 +39,8 @@ func NewProductHandler(productService ProductService, logger logging.LoggerServi
 
 	se.SetExternalDocs("Find out more about Swagger", "http://swagger.io").
 		SetResponseContentType("application/xml", "application/json").
-		SetUI(echoswagger.UISetting{DetachSpec: true, HideTop: true}).
-		SetScheme("https", "http")
+		SetUI(echoswagger.UISetting{DetachSpec: true, HideTop: true})
+		//SetScheme("https", "http")
 
 	handler := &productHandler{productService, logger}
 
@@ -45,7 +54,7 @@ func NewProductHandler(productService ProductService, logger logging.LoggerServi
 		SetRequestContentType("application/json", "application/xml").
 		SetSummary("Add a new product to the database")
 
-	p.PUT(":id", handler.UpdateProduct).
+	p.PUT("/:id", handler.UpdateProduct).
 		AddParamBody(entities.Product{},"body", "Product object that needs to be update to the store", true).
 		AddParamPath(int64(0), "id", "Product id to update").
 		AddResponse(http.StatusBadRequest, "Invalid ID supplied", nil, nil).
@@ -54,7 +63,7 @@ func NewProductHandler(productService ProductService, logger logging.LoggerServi
 		AddResponse(http.StatusInternalServerError, "Db operation failed", nil, nil).
 		SetSummary("Update a product")
 
-	p.DELETE(":id", handler.DeleteProduct).
+	p.DELETE("/:id", handler.DeleteProduct).
 		AddParamPath(int64(0), "id", "Product id to delete").
 		AddResponse(http.StatusBadRequest, "Invalid ID supplied", nil, nil).
 		AddResponse(http.StatusNotFound, "Product not found", nil, nil).
